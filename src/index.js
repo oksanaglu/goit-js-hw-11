@@ -4,6 +4,7 @@ import SimpleLightbox from 'simplelightbox'
 import 'simplelightbox/dist/simple-lightbox.min.css'
 import { fetchImages } from './js/fetch-images'
 import { renderGallery } from './js/render-gallery'
+import { onScroll, onToTopBtn } from './js/scroll'
 
 const refs = {
   searchForm: document.querySelector('#search-form'),
@@ -19,9 +20,13 @@ const perPage = 40
 refs.searchForm.addEventListener('submit', onSearchForm)
 refs.loadMoreBtn.addEventListener('click', onLoadMoreBtn)
 
-function onSearchForm(e) {
-  e.preventDefault()
+onScroll()
+onToTopBtn()
 
+
+async function onSearchForm(e) {
+  e.preventDefault()
+  window.scrollTo({ top: 0 })
   page = 1
   query = e.currentTarget.searchQuery.value.trim()
   refs.gallery.innerHTML = ''
@@ -32,8 +37,8 @@ function onSearchForm(e) {
     return
   }
 
-  fetchImages(query, page, perPage)
-    .then(({ data }) => {
+  const data = await fetchImages(query, page, perPage)
+  .then(({ data }) => {
       if (data.totalHits === 0) {
         alertNoImagesFound()
       } else {
@@ -48,6 +53,8 @@ function onSearchForm(e) {
     })
     .catch(error => console.log(error))
 }
+
+
 
 function onLoadMoreBtn() {
   page += 1
